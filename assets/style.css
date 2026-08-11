@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+html,
+body,
+[class*="css"] {
+  font-family: 'DM Sans', sans-serif;
+}
+
+.hero-header {
+  border: 1px solid #2a2d3a;
+  border-radius: 16px;
+  padding: 2.5rem 2rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-header::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+}
+
+.hero-header::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.5px;
+}
+
+.hero-title span {
+  background: linear-gradient(90deg, #307737, #00598a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Cards de métricas */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.metric-card {
+  background: #1a1d27;
+  border: 1px solid #2a2d3a;
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.metric-card:hover {
+  border-color: #6366f1;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.metric-card.total::before {
+  background: #6366f1;
+}
+
+.metric-card.done::before {
+  background: #10b981;
+}
+
+.metric-card.pending::before {
+  background: #f59e0b;
+}
+
+.metric-card.sectors::before {
+  background: #ec4899;
+}
+
+.metric-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.metric-label {
+  font-size: 0.78rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+/* Badges de status */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-done {
+  background: #064e3b;
+  color: #34d399;
+  border: 1px solid #065f46;
+}
+
+.badge-pending {
+  background: #451a03;
+  color: #fbbf24;
+  border: 1px solid #78350f;
+}
+
+.badge-other {
+  background: #1e1b4b;
+  color: #a5b4fc;
+  border: 1px solid #312e81;
+}
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed #2a2d3a;
+  border-radius: 14px;
+  padding: 2.5rem;
+  text-align: center;
+  background: #13151f;
+  transition: border-color 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.upload-zone:hover {
+  border-color: #6366f1;
+}
+
+/* Streamlit overrides */
+div[data-testid="stFileUploader"]>label {
+  display: none;
+}
+
+div[data-testid="stFileUploader"] section {
+  background: #13151f !important;
+  border: 2px dashed #2a2d3a !important;
+  border-radius: 14px !important;
+  padding: 2rem !important;
+}
+
+div[data-testid="stFileUploader"] section:hover {
+  border-color: #6366f1 !important;
+}
+
+/* Date picker container */
+div[data-testid="stDateInput"] label {
+  color: #9ca3af !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Dataframe */
+div[data-testid="stDataFrame"] {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #2a2d3a;
+}
+
+/* Expander */
+div[data-testid="stExpander"] {
+  background: #1a1d27 !important;
+  border: 1px solid #2a2d3a !important;
+  border-radius: 12px !important;
+  margin-bottom: 0.5rem !important;
+}
+
+div[data-testid="stExpander"] summary {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: #e8e8e8 !important;
+  padding: 0.9rem 1.2rem !important;
+}
+
+/* Botões */
+div[data-testid="stDownloadButton"] button {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500 !important;
+  padding: 0.5rem 1.5rem !important;
+  transition: opacity 0.2s !important;
+}
+
+div[data-testid="stDownloadButton"] button:hover {
+  opacity: 0.85 !important;
+}
+
+/* Info box */
+.info-box {
+  background: #1a1d27;
+  border: 1px solid #2a2d3a;
+  border-left: 4px solid #6366f1;
+  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0.5rem 0rem;
+}
+
+/* Divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid #1f2130;
+  margin: 1.5rem 0;
+}
+
+.filter-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 0.8rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2d3a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+}
