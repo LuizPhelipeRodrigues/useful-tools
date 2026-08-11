@@ -290,14 +290,12 @@ def extract_title(title: str) -> tuple:
     return get_title(title, None), "—" 
   
 def build_observation(status: str, done_date: datetime | None, obs: str) -> str:
-    st.write(obs)
-  
     if status == "CONCLUÍDO":
         date_str = format_date_short(done_date) if done_date else "data não registrada"
         return f"Concluído no dia {date_str}"
       
     # Não concluído → usa descrição se houver
-    return obs if obs else f"Status atual: {status}"  
+    return obs if len(obs) > 12 else ""
 
 # FIX
 def extract_desc(desc: str, status: str, done_date: datetime | None) -> tuple:
@@ -305,9 +303,6 @@ def extract_desc(desc: str, status: str, done_date: datetime | None) -> tuple:
   pos_desc_content = (pos_desc_label if pos_desc_label > -1 else 0) + len("[DESCRICAO]:") 
   
   pos_obs_label = desc.find("[OBSERVACAO]:")
-  # pos_obs_content = pos_obs_label + len("[OBSERVACAO]:")
-
-  st.write(desc[pos_obs_label:].strip())
   
   description = desc[pos_desc_content:pos_obs_label].strip() or ""
   observation = build_observation(status, done_date, desc[pos_obs_label:].strip()) or ""
@@ -381,9 +376,9 @@ def process_trello_json(data: dict, initial_date: date, final_date: date) -> lis
         description, observation = extract_desc(card_description, status, done_date)
 
         results.append({
-            "Data de Finalização": format_date(done_date),
+            "Data": format_date(done_date),
             "Atividade Realizada": title,
-            "Descrição da Atividade": description,
+            # "Descrição da Atividade": description,
             "Setor": sector,
             "Status": status,
             "Observação": observation,
@@ -534,7 +529,7 @@ st.markdown(f"""
 col_f1, col_f2 = st.columns([1, 1])
 
 with col_f1:
-    sector_options = ["Todos"] + sorted(df["Setor"].unique().tolist())
+    sector_options = ["Todos"] + sorted (df["Setor"].unique().tolist())
     selected_sector = st.selectbox("Filtrar por setor", sector_options)
 
 with col_f2:
@@ -563,9 +558,9 @@ with tab_table:
         width='stretch',
         hide_index=True,
         column_config={
-            "Data de Finalização": st.column_config.TextColumn("📅 Data", width="small"),
+            "Data": st.column_config.TextColumn("📅 Data", width="small"),
             "Atividade Realizada": st.column_config.TextColumn("📌 Atividade", width="large"),
-            "Descrição da Atividade": st.column_config.TextColumn("📝 Descrição", width="large"),
+            # "Descrição da Atividade": st.column_config.TextColumn("📝 Descrição", width="large"),
             "Setor": st.column_config.TextColumn("🏢 Setor", width="small"),
             "Status": st.column_config.TextColumn("🔖 Status", width="small"),
             "Observação": st.column_config.TextColumn("💬 Observação", width="medium"),
@@ -579,13 +574,13 @@ with tab_cards:
         with st.expander(f"{row['Atividade Realizada']} - {row['Setor']}"):
             c1, c2 = st.columns([1, 2])
             with c1:
-                st.markdown(f"**📅 Data de Finalização**  \n{row['Data de Finalização'] or '—'}")
+                st.markdown(f"**📅 Data**  \n{row['Data'] or '—'}")
                 st.markdown(f"**🏢 Setor**  \n{row['Setor']}")
                 st.markdown(f"**🔖 Status**")
                 st.markdown(badge, unsafe_allow_html=True)
             with c2:
                 st.markdown(f"**📝 Descrição**")
-                st.markdown(row["Descrição da Atividade"] or "*Sem descrição*")
+                # st.markdown(row["Descrição da Atividade"] or "*Sem descrição*")
                 st.markdown(f"**💬 Observação**  \n{row['Observação']}")
 
 # ─── Download ─────────────────────────────────────────────────────────────────
