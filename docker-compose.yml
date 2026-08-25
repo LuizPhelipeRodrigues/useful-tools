@@ -1,0 +1,15 @@
+services:
+  useful-tools:
+    build: .
+    ports:
+      - "3004:3004"
+    networks:
+      - srv-network
+    container_name: useful-tools
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+networks:
+  srv-network:
+    external: true
