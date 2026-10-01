@@ -25,7 +25,6 @@ def render_trello_tab():
         format="DD/MM/YYYY",
         label_visibility="collapsed",
     )
-    st.markdown("</div>", unsafe_allow_html=True)
 
     if not dates_range or len(dates_range) != 2:
         filter_container.markdown("""
@@ -96,13 +95,7 @@ def render_trello_tab():
     if selected_status != "Todos":
         df_filtered = df_filtered[df_filtered["Status"] == selected_status]
 
-    st.markdown(f"""
-    <div style="font-size:0.8rem; color:#6b7280; margin:0.5rem 0 1rem;">
-        Exibindo <strong style="color:#a5b4fc">{len(df_filtered)}</strong> de {total} atividades
-    </div>
-    """, unsafe_allow_html=True)
-
-    tab_table, tab_cards = st.tabs(["📊 Tabela", "🃏 Cartões"])
+    tab_table, tab_dashboard = st.tabs(["Tabela", "📊 Gráficos"])
 
     with tab_table:
         st.dataframe(
@@ -112,46 +105,36 @@ def render_trello_tab():
             column_config={
                 "Data": st.column_config.TextColumn("📅 Data", width="small"),
                 "Atividade Realizada": st.column_config.TextColumn("📌 Atividade", width="large"),
-                # "Descrição da Atividade": st.column_config.TextColumn("📝 Descrição", width="large"),
-                "Setor": st.column_config.TextColumn("🏢 Setor", width="small"),
-                "Status": st.column_config.TextColumn("🔖 Status", width="small"),
+                "Descrição da Atividade": st.column_config.TextColumn("Descrição", width="large"),
+                "Setor": st.column_config.TextColumn("Setor", width="small"),
+                "Status": st.column_config.TextColumn("Status", width="small"),
                 "Observação": st.column_config.TextColumn("💬 Observação", width="medium"),
             },
             height=480,
         )
 
-    with tab_cards:
-        for _, row in df_filtered.iterrows():
-            badge = trello_utils.status_badge(row["Status"])
-            with st.expander(f"{row['Atividade Realizada']} - {row['Setor']}"):
-                c1, c2 = st.columns([1, 2])
-                with c1:
-                    st.markdown(f"**📅 Data**  \n{row['Data'] or '—'}")
-                    st.markdown(f"**🏢 Setor**  \n{row['Setor']}")
-                    st.markdown(f"**🔖 Status**")
-                    st.markdown(badge, unsafe_allow_html=True)
-                with c2:
-                    st.markdown(f"**📝 Descrição**")
-                    # st.markdown(row["Descrição da Atividade"] or "*Sem descrição*")
-                    st.markdown(f"**💬 Observação**  \n{row['Observação']}")
+        st.markdown(f"""
+        <div style="font-size:0.8rem; color:#6b7280; margin:0.5rem 0 1rem;">
+            Exibindo <strong style="color:#a5b4fc">{len(df_filtered)}</strong> de {total} atividades
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
-    col_d1, col_d2, _ = st.columns(3)
+    with tab_dashboard:
+        st.markdown("<div>Dashboard</div>", unsafe_allow_html=True)
 
-    with col_d1:
+    with st.container(horizontal= True, horizontal_alignment="right"):
         excel_data = trello_utils.to_excel(df_filtered)
         period_str = f"{initial_date.strftime('%d%m%Y')}_a_{final_date.strftime('%d%m%Y')}"
         st.download_button(
-            label="⬇️ Baixar Excel",
+            label="Baixar Excel",
             data=excel_data,
             file_name=f"trello_atividades_{period_str}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-
-    with col_d2:
+        
         csv_data = df_filtered.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
         st.download_button(
-            label="⬇️ Baixar CSV",
+            label="Baixar CSV",
             data=csv_data,
             file_name=f"trello_atividades_{period_str}.csv",
             mime="text/csv",

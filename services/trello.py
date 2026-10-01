@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timezone, timedelta, date
 
 BRASILIA = timezone(timedelta(hours=-3))
+TYPE_KEYWORDS = {"EVOLUTIVA", "CORREÇÃO"}
 DONE_KEYWORDS = {
   "concluído", "concluida", "concluídos", "concluidas",
   "done", "finalizado", "finalizados", "finished", "completo", "completos",
@@ -40,12 +41,17 @@ class Trello():
         m = re.match(r"^\[(.+?)\]", title)
         if m:
             sector = m.group(1).strip()
+            if len(sector) <= 30:
+                if sector == "REALIZADA" or sector == "PENDENTE":
+                    return self.get_title(title, ""), "" 
             return self.get_title(title, sector), sector 
 
         m = re.match(r"^([A-ZÀ-Ú][^:\-]{0,28})[\s]*[-:][\s]", title)
         if m:
             sector = m.group(1).strip()
             if len(sector) <= 30:
+                if sector == "REALIZADA" or sector == "PENDENTE":
+                    return self.get_title(title, ""), ""
                 return self.get_title(title, sector), sector
 
         return self.get_title(title, None), "—" 
@@ -58,7 +64,6 @@ class Trello():
         # Não concluído → usa descrição se houver
         return obs if len(obs) > 12 else ""
 
-    # FIX
     def extract_desc(self, desc: str, status: str, done_date: datetime | None) -> tuple:
       pos_desc_label = desc.find("[DESCRICAO]:")
       pos_desc_content = (pos_desc_label if pos_desc_label > -1 else 0) + len("[DESCRICAO]:") 
@@ -104,12 +109,24 @@ class Trello():
     def get_status(self, card: dict, done_list_ids: set[str]) -> str:
         labels = card.get("labels", [])
         if labels:
-            name = labels[0].get("name", "").strip()
-            return name.upper() if name else "SEM ETIQUETA"
+            for label in labels:
+                name = label.get("name", "").strip()
+                if name not in TYPE_KEYWORDS or not any(kw in name for kw in TYPE_KEYWORDS):
+                    return name.upper() if name else "SEM ETIQUETA"
+            return "PENDENTE" 
         if card.get("idList") in done_list_ids or card.get("dueComplete"):
             return "CONCLUÍDO"
         return "PENDENTE"
 
+    def get_type(self, card: dict) -> str:
+        labels = card.get("labels", [])
+        if labels:
+            for label in labels:
+                name = label.get("name", "").strip()
+                if name in TYPE_KEYWORDS or any(kw in name for kw in TYPE_KEYWORDS):
+                    return name
+        return ""
+    
     def process_trello_json(self, data: dict, initial_date: date, final_date: date) -> list[dict]:
         lists = data.get("lists", [])
         cards = data.get("cards", [])
@@ -124,6 +141,7 @@ class Trello():
 
             done_date = self.get_done_date(card, actions, done_list_ids)
             status = self.get_status(card, done_list_ids)
+            type_card = self.get_type(card) 
 
             # Filtro de datas — usa done_date se existir, senão dateLastActivity
             ref_dt = done_date or self.parse_date(card.get("dateLastActivity"))
@@ -139,7 +157,8 @@ class Trello():
             results.append({
                 "Data": self.format_date(done_date),
                 "Atividade Realizada": title,
-                # "Descrição da Atividade": description,
+                "Descrição da Atividade": description,
+                "Tipo": type_card,
                 "Setor": sector,
                 "Status": status,
                 "Observação": observation,
@@ -156,7 +175,7 @@ class Trello():
 
             from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-            header_fill = PatternFill("solid", fgColor="1E1B4B")
+            header_fill = PatternFill("solid", fgColor="DA9694")
             header_font = Font(bold=True, color="FFFFFF", size=10)
             thin = Side(style="thin", color="CCCCCC")
             border = Border(left=thin, right=thin, top=thin, bottom=thin)
@@ -173,17 +192,10 @@ class Trello():
 
             ws.row_dimensions[1].height = 24
 
-            status_colors = {
-                "CONCLUÍDO": "D1FAE5",
-                "PENDENTE":  "FEF3C7",
-            }
             for row in ws.iter_rows(min_row=2):
                 status_cell = row[4]  # coluna E
-                fill_color = status_colors.get(status_cell.value, "EDE9FE")
-                fill = PatternFill("solid", fgColor=fill_color)
                 for cell in row:
                     cell.border = border
-                    cell.fill = fill
                     cell.alignment = Alignment(vertical="top", wrap_text=True)
                 ws.row_dimensions[status_cell.row].height = 36
 
